@@ -1,92 +1,24 @@
-#ifndef CONTROL_HPP
-#define CONTROL_HPP
-
-#include <Arduino.h>
-#include "sensors.hpp"
-
-// create parameters for motorControl function
-// Wheel radius in cm
-#define WHEEL_RADIUS 3.5
-// Distance between wheels in cm
-#define BASE_WIDTH 18
-
-typedef struct MotorPins
-{
-    int rf;
-    int rb;
-    int lf;
-    int lb;
-    int speedRight;
-    int speedLeft;
-} MotorPins;
-void stop(MotorPins motorPins);
-void turn(MotorPins motorPins);
-void moveForward(float speed, MotorPins motorPins);
-void turnLeft(float speed, MotorPins motorPins);
-void turnRight(float speed, MotorPins motorPins);
-void motorControl(float linearSpeed , float angularSpeed, MotorPins motorPins){
-    // Calculate left and right wheel speeds
-    float leftSpeed = (linearSpeed - angularSpeed * BASE_WIDTH / 2) / WHEEL_RADIUS;
-    float rightSpeed = (linearSpeed + angularSpeed * BASE_WIDTH / 2) / WHEEL_RADIUS;
-
-
-    // map speeds to 0-255 range
-    leftSpeed = map(leftSpeed, -100, 100, -255, 255);
-    rightSpeed = map(rightSpeed, -100, 100, -255, 255);
-
-    // change direction of wheels if speed is negative
-    if (leftSpeed < 0)
-    {
-        digitalWrite(motorPins.lf, LOW);
-        digitalWrite(motorPins.lb, HIGH);
-        leftSpeed = -leftSpeed;
-    }
-    else
-    {
-        digitalWrite(motorPins.lf, HIGH);
-        digitalWrite(motorPins.lb, LOW);
-    }
-
-    if (rightSpeed < 0)
-    {
-        digitalWrite(motorPins.rf, LOW);
-        digitalWrite(motorPins.rb, HIGH);
-        rightSpeed = -rightSpeed;
-    }
-    else
-    {
-        digitalWrite(motorPins.rf, HIGH);
-        digitalWrite(motorPins.rb, LOW);
-    }
-
-    // Generate PWM signals at speed pins
-    analogWrite(motorPins.speedLeft, 0.5 * leftSpeed);
-    analogWrite(motorPins.speedRight, 0.5 * rightSpeed);
-    delay(5);
-    analogWrite(motorPins.speedLeft, leftSpeed);
-    analogWrite(motorPins.speedRight, rightSpeed);
-    delay(5);
-}
-
-
+#include "control.hpp"
+float steerRatio;
 bool lineFollowingAlgorithm(float speed, LinePin linePins, MotorPins motorPins, bool lastTurnRight, bool colorDetected)
 {
     // Assuming sensor values are read into variables sensor1, sensor2, sensor3, sensor4, sensor5
     // Assuming color sensor value is read into variable colorSensor
     // Assuming motor control functions are turnSharpLeft(speed, motorPins), turnSharpRight(speed, motorPins), turnBack(speed, motorPins), moveForward(speed, motorPins)
     // Assuming a boolean variable lastTurnRight to keep track of the last turn direction
-    float steerRatio = 0;
+
     // Read color sensor value
     LineReading lineReading = readLine(linePins);
-    
-    if (lineReading.L) steerRatio += -0.15; 
-    //if (linePins.L && linePins.LL) steerRatio += -0.3;
-    if (lineReading.R) steerRatio += 0.15;
-    //if (linePins.R && linePins.RR) steerRatio += 0.3;
-    if (lineReading.M) steerRatio = steerRatio/4;
-    motorControl(speed*(1-steerRatio), speed*steerRatio, motorPins);
 
-    /*if (colorDetected)
+    if (linePins.L) steerRatio += -0.4; 
+    //if (linePins.L && linePins.LL) steerRatio += -0.3;
+    if (linePins.R) steerRatio += 0.4;
+    //if (linePins.R && linePins.RR) steerRatio += 0.3;
+    if (linePins.M) steerRatio = steerRatio/4
+    motorControl(speed, speed *steerRatio, MotorPins MotorPins)
+
+    
+    if (colorDetected)
     {
         do
         {
@@ -173,44 +105,3 @@ bool lineFollowingAlgorithm(float speed, LinePin linePins, MotorPins motorPins, 
     }
     return lastTurnRight;
 }
-
-void stop(MotorPins motorPins)
-{
-    motorControl(0, 0, motorPins);
-}
-void turn(MotorPins motorPins)
-{
-    // Turn in place (linSpeed = 0, angSpeed = 75)
-    motorControl(0, 75, motorPins);
-}
-
-void moveForward(float speed, MotorPins motorPins)
-{
-    // Move forward (linSpeed = 75, angSpeed = 0)
-    motorControl(speed, 0, motorPins);
-}
-void adjustRight(float speed, MotorPins motorPins)
-{
-    // Turn left (linSpeed = 75, angSpeed = -75)
-    motorControl(speed, speed*0.2, motorPins);
-}
-void adjustLeft(float speed, MotorPins motorPins)
-{
-    // Turn left (linSpeed = 75, angSpeed = -75)
-    motorControl(speed, -speed*0.2, motorPins);
-}
-
-void turnLeft(float speed, MotorPins motorPins)
-{
-    // Turn left (linSpeed = 75, angSpeed = -75)
-    motorControl(speed, -speed*0.5, motorPins);
-}
-
-void turnRight(float speed, MotorPins motorPins)
-{
-    // Turn right (linSpeed = 75, angSpeed = 75)
-    motorControl(speed, speed*0.5, motorPins);
-}
-*/
-}
-#endif

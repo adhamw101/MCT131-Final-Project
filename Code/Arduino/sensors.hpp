@@ -2,8 +2,9 @@
 #define SENSORS_H
 
 #include <Arduino.h>
-#include <HCSR04.h>
-#include <tcs3200.h>
+//#include <HCSR04.h>
+//#include <tcs3200.h>
+#include <Vector.h>
 
 typedef enum Color
 {
@@ -61,6 +62,7 @@ LineReading readLine(LinePin pins)
     return reading;
 }
 
+/*
 void readColor(ColorPin pins)
 {
     // read color sensor
@@ -72,5 +74,5 @@ double readUltra(UltraPin pins)
     double *reading = HCSR04.measureDistanceMm();
     return reading[0];
 }
-
+*/
 #endif
