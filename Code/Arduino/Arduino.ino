@@ -9,7 +9,7 @@ float speed = 80;
 /*float linear = 100;
 float angular = 5;
 bool lastTurnRight = 0;
-float speed = 100;
+float speed = 80;
 
 void motorTest(float linear, float angular, MotorPins motorpins)
 {
@@ -52,4 +52,6 @@ void loop()
   Serial.print(lineReading.R);
   Serial.print(", ");
   Serial.println(lineReading.RR);
+  // lastTurnRight = lineFollowingAlgorithm(speed, linePins, motorPins, lastTurnRight, false);
+  motorControl(speed, 0, motorPins);
 }
